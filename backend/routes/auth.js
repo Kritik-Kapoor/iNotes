@@ -20,15 +20,18 @@ router.post(
   ],
   async (req, res) => {
     //return bad request for errors
+    let success = false;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ success, errors: errors.array() });
     }
     //check whether the user already exists
     try {
       let user = await User.findOne({ email: req.body.email });
       if (user) {
-        return res.status(400).json({ error: "This email already exists" });
+        return res
+          .status(400)
+          .json({ success, error: "This email already exists" });
       }
       const salt = await bcrypt.genSaltSync(10);
       const secPass = await bcrypt.hashSync(req.body.password, salt);
@@ -45,8 +48,8 @@ router.post(
         },
       };
       const token = jwt.sign(data, JWT_KEY);
-
-      res.json({ token });
+      success = true;
+      res.json({ success, token });
     } catch (error) {
       console.error(error.message);
       res.status(500).send("some internal error occured in the code");
@@ -63,20 +66,25 @@ router.post(
   ],
   async (req, res) => {
     //return bad request for errors
+    let success = false;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ success, errors: errors.array() });
     }
 
     const { email, password } = req.body;
     try {
       let user = await User.findOne({ email });
       if (!user) {
-        return res.status(400).json({ error: "Enter correct credentials" });
+        return res
+          .status(400)
+          .json({ success, error: "Enter correct credentials" });
       }
       const compPass = await bcrypt.compare(password, user.password);
       if (!compPass) {
-        return res.status(400).json({ error: "Enter correct credentials" });
+        return res
+          .status(400)
+          .json({ success, error: "Enter correct credentials" });
       }
       const data = {
         user: {
@@ -84,9 +92,10 @@ router.post(
         },
       };
       const token = jwt.sign(data, JWT_KEY);
-      res.json({ token });
+      success = true;
+      res.json({ success, token });
     } catch (error) {
-      onsole.error(error.message);
+      console.error(error.message);
       res.status(500).send("some internal error occured in the code");
     }
   }

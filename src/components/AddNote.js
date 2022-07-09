@@ -1,19 +1,21 @@
 import React, { useContext, useState } from "react";
 import noteContext from "../context/notes/noteContext";
 
-const AddNote = () => {
+const AddNote = (props) => {
   const context = useContext(noteContext);
   const { addNote } = context;
 
   const [note, setNote] = useState({
     title: "",
     description: "",
-    tag: "default",
+    tag: "",
   });
 
   const handleonClick = (e) => {
     e.preventDefault();
     addNote(note.title, note.description, note.tag);
+    setNote({ title: "", description: "", tag: "" });
+    props.showAlerts("Added Successfully", "success");
   };
   const handleonChange = (e) => {
     setNote({ ...note, [e.target.name]: e.target.value });
@@ -34,6 +36,8 @@ const AddNote = () => {
             name="title"
             aria-describedby="emailHelp"
             onChange={handleonChange}
+            minLength={5}
+            value={note.title}
           />
         </div>
         <div className="mb-3">
@@ -46,19 +50,26 @@ const AddNote = () => {
             id="description"
             name="description"
             onChange={handleonChange}
+            minLength={5}
+            value={note.description}
           />
         </div>
-        <div className="mb-3 form-check">
-          <input
-            type="checkbox"
-            className="form-check-input"
-            id="exampleCheck1"
-          />
-          <label className="form-check-label" htmlFor="exampleCheck1">
-            Check me out
+        <div className="mb-3">
+          <label htmlFor="tag" className="form-label">
+            Tag
           </label>
+          <input
+            type="text"
+            className="form-control"
+            id="tag"
+            name="tag"
+            onChange={handleonChange}
+            minLength={5}
+            value={note.tag}
+          />
         </div>
         <button
+          disabled={note.title.length < 5 || note.description.length < 5}
           type="submit"
           className="btn btn-primary"
           onClick={handleonClick}
