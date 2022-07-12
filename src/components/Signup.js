@@ -33,6 +33,18 @@ const Signup = (props) => {
   const handleonChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
+
+  const [pass, setPass] = useState("");
+  const passValidation = (e) => {
+    const confPass = e.target.value;
+    setPass(confPass);
+    if (credentials.password !== confPass) {
+      props.showAlerts("Confirm password doesn't match password", "danger");
+    } else {
+      props.showAlerts("Password Matched", "success");
+    }
+  };
+
   return (
     <div className="container">
       <form onSubmit={handleSubmit}>
@@ -83,17 +95,22 @@ const Signup = (props) => {
             Confirm Password
           </label>
           <input
+            value={pass}
             type="password"
             className="form-control"
             name="cpassword"
             id="cpassword"
-            onChange={handleonChange}
+            onChange={(e) => passValidation(e)}
             minLength={5}
             required
           />
         </div>
 
-        <button type="submit" className="btn btn-primary">
+        <button
+          disabled={pass !== credentials.password ? true : false}
+          type="submit"
+          className="btn btn-primary"
+        >
           Submit
         </button>
       </form>
